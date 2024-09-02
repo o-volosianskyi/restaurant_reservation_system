@@ -1,5 +1,5 @@
 10.times do
-  Table.create!(capacity: rand(1..10))
+  Table.create!(capacity: rand(2..8))
 end
 
 15.times do
