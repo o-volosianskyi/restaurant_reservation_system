@@ -1,0 +1,36 @@
+<%= turbo_frame_tag "form" do %>
+  <%= form_with(model: reservation, url: reservations_path) do |form| %>
+    <% if flash[:notice] %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= flash[:notice] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% elsif reservation.errors.any? %>
+      <div class="alert alert-danger">
+        <h4 class="alert-heading">Couldn't create a reservation:</h4>
+        <ul>
+          <% reservation.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-3">
+      <%= form.label :name, class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :time, class: "form-label" %>
+      <%= form.datetime_local_field :time, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :people_amount, "Number of People", class: "form-label" %>
+      <%= form.number_field :people_amount, class: "form-control", required: true %>
+    </div>
+
+    <%= form.submit "Create Reservation", class: "btn btn-primary" %>
+  <% end %>
+<% end %>

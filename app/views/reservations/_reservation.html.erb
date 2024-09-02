@@ -1,0 +1,6 @@
+<tr id="reservation_<%= reservation.id %>">
+  <td><%= reservation.name %></td>
+  <td><%= reservation.time.strftime("%A, %d %B %Y %I:%M %p") %></td>
+  <td><%= reservation.people_amount %></td>
+  <td><%= reservation.tables.map { |t| "##{t.id} (#{t.capacity} seats)" }.join(", ") %></td>
+</tr>

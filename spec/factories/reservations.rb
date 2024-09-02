@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :reservation do
-    time { Faker::Time.between(from: DateTime.now + 1.day, to: DateTime.now + Reservation::MAX_FUTURE_DAYS) }
+    time { Faker::Time.between(from: DateTime.now + 1.day, to: DateTime.now + Reservation::MAX_FUTURE_DAYS).beginning_of_hour }
     people_amount { rand(1..6) }
     name { Faker::Name.name }
 

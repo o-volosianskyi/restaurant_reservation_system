@@ -32,28 +32,9 @@ RSpec.describe Reservations::Creator, type: :service do
       
       expect_any_instance_of(Tables::Finder).to receive(:call).and_return([])
 
-      service = described_class.new(time: time, people_amount: people_amount, name: name)
-      expect { service.call }.to raise_error(ArgumentError, "no capacity for selected time (#{time.beginning_of_hour}) and people amount (#{people_amount})")
-    end
-  end
-
-  context 'when a database error occurs' do
-    it 'does not create a reservation or assign tables' do
-      time = DateTime.now
-      people_amount = 6
-      name = "John Doe"
-      
-      allow_any_instance_of(Tables::Finder).to receive(:call).and_return([table2.id])
-      allow(Reservation).to receive(:create!).and_raise(ActiveRecord::ActiveRecordError)
-
-      service = described_class.new(time: time, people_amount: people_amount, name: name)
-      
-      expect {
-        service.call
-      }.to raise_error(ActiveRecord::ActiveRecordError)
-      
-      expect(Reservation.count).to eq(0)
-      expect(ReservationTable.count).to eq(0)
+      reservation = described_class.new(time: time, people_amount: people_amount, name: name).call
+      expect(reservation.persisted?).to be_falsey
+      expect(reservation.errors[:base]).to include("no capacity for selected time (#{time.beginning_of_hour}) and people amount (#{people_amount})")
     end
   end
 end

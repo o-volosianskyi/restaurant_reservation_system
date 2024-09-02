@@ -14,15 +14,16 @@ class Tables::Finder
 
   attr_reader :time, :people_amount
 
-  def find_suitable_table_ids(time, people_amount, tables = nil)
+  def find_suitable_table_ids(time, people_amount, tables = nil) 
     tables ||= Table.left_joins(reservation_tables: :reservation)
-                    .where('reservations.time IS NULL OR reservations.time <> ?', time)
+                    .group(:id)
+                    .having('COUNT(CASE WHEN reservations.time = ? THEN 1 END) = 0', time)
                     .order(capacity: :desc)
                     .as_json
                     .map(&:symbolize_keys)
-
+  
     return [] if tables.empty?
-
+  
     exact_or_closest_match = tables.sort_by { |t| t[:capacity] }
                                    .find { |t| t[:capacity] >= people_amount && t[:capacity] <= people_amount + MAX_WASTED_SEATS }
 
@@ -30,19 +31,20 @@ class Tables::Finder
       return [exact_or_closest_match[:id]]
     else
       best_fit = tables.find { |t| t[:capacity] <= people_amount }
-
+      
       if best_fit
         remaining_people = people_amount - best_fit[:capacity]
         remaining_tables = tables.reject { |t| t[:id] == best_fit[:id] }
-
+        
         result = find_suitable_table_ids(time, remaining_people, remaining_tables)
-
+        
         return [] if remaining_people > 0 && result.empty?
-
+        
         return [best_fit[:id]] + result
       else
-        return []
+        smallest_table = tables.last
+        return smallest_table ? [smallest_table[:id]] : []
       end
     end
-  end
+  end  
 end
